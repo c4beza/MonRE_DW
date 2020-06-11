@@ -40,3 +40,7 @@ SELECT count(*) FROM MonRE.Visit;
 --------------------------------------------------------------------------------
 -- Finding the errors:
 --------------------------------------------------------------------------------
+SELECT Street, COUNT(*) 
+FROM ADDRESS
+GROUP BY Street
+HAVING COUNT(*) > 1;
