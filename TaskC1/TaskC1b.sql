@@ -99,7 +99,8 @@ OR min_budget IS NULL
 OR max_budget IS NULL
 OR person_id <= 0
 OR min_budget <= 0
-OR max_budget <= 0;
+OR max_budget <= 0
+OR min_budget >= max_budget;
 
 -- check if there are illegal values in MonRE.Client_Wish
 SELECT * 
@@ -291,7 +292,7 @@ OR property_id NOT IN (SELECT property_id from MonRE.Property);
 -- Cleaning the data
 --------------------------------------------------------------------------------
 -- Error 1: Duplicate record in ADDRESS table 
---(43 out of 13204 records were redundant)
+--(39 out of 13204 records were redundant)
 --------------------------------------------------------------------------------
 -- Detection Strategy:
 SELECT SUM(duplicate_address_records)
@@ -334,7 +335,8 @@ FROM MonRE.Agent
 WHERE salary > 0);
 
 -- Error 3: Dirty record in Client table 
---(There is negative value in MonRE.Client)
+--(There is negative value in MonRE.Client and there are 
+--maximum budget that are smaller than minimum budget)
 --------------------------------------------------------------------------------
 -- Detection Strategy:
 SELECT COUNT(*) FROM MonRE.Client;
@@ -347,13 +349,15 @@ OR min_budget IS NULL
 OR max_budget IS NULL
 OR person_id <= 0
 OR min_budget <= 0
-OR max_budget <= 0);
+OR max_budget <= 0
+OR max_budget <= min_budget);
 
 -- Solution:
 SELECT COUNT(*) FROM ( 
 SELECT * 
 FROM MonRE.Client
-WHERE max_budget > 0);
+WHERE max_budget > 0 
+AND max_budget > min_budget);
 
 -- Error 4: Dirty record in Person table 
 --(There are 4 duplicate values in MonRE.Person, we will just keep 1 record in the database)
