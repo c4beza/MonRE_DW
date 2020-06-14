@@ -56,12 +56,10 @@ AND F.property_type = PT.property_type
 WHERE percent_rank >= 0.95
 ORDER BY percent_rank DESC;
 
--- Report 3 Show the total number of clients that are female and have high budget plan.
+-- Report 3 Show the total number of clients for each gender and each budget range.
 -- V1
 SELECT gender, budget_range, SUM(total_num_of_clients)
 FROM ClientFact_V1
-WHERE gender = 'Female'
-AND budget_range = 'High'
 GROUP BY gender, budget_range;
 
 -- V2
@@ -69,8 +67,6 @@ SELECT G.gender, B.budget_range, SUM(F.total_num_of_clients)
 FROM ClientFact_V2 F, MaxBudgetRangeDim_V2 B, Agent_ClientGenderDim_V2 G
 WHERE G.gender = F.gender
 AND B.budget_range = F.budget_range
-AND G.gender = 'Female'
-AND B.budget_range = 'High'
 GROUP BY G.gender, B.budget_range;
 
 -- Report 4 & 5: What are the sub-total and total rental fees from each suburb, time period, and property type?
