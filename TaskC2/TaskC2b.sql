@@ -324,7 +324,7 @@ INSERT INTO RentalPeriodDim
 VALUES ('Medium', 'Six to twelve months');
 
 INSERT INTO RentalPeriodDim 
-VALUES ('Short', 'More than twelve months');
+VALUES ('Long', 'More than twelve months');
 
 -- populate Season dimension
 INSERT INTO SeasonDim 
@@ -359,28 +359,580 @@ VALUES ('Medium', 'Four to twelve employees');
 INSERT INTO OfficeSizeDim 
 VALUES ('Big', 'More than twelve employees');
 --------------------------------------------------------------------------------
--- secondly, create a temp fact table to extract from uselog table 
+-- create temp fact tables to extract from Sale table 
 --------------------------------------------------------------------------------
+DROP TABLE TempSaleFact1;
 
+CREATE TABLE TempSaleFact1 AS
+    SELECT DISTINCT
+	TO_CHAR(S.sale_date,'YYYYMMDD') AS time_id,
+	S.sale_date,
+	ST.state_code, 
+	P.property_type, 
+	A.suburb,
+	P.property_no_of_bedrooms,
+	S.property_id,
+	PE.gender AS agent_gender,
+	S.client_person_id,
+	S.agent_person_id AS agent_id,
+	S.sale_id,
+	s.price
+    FROM Sale S, State ST, Property P, Address A, Postcode PO, Person PE
+    WHERE S.property_id = P.property_id
+	AND P.address_id = A.address_id
+	AND A.postcode = PO.postcode
+	AND PO.state_code = ST.state_code
+	AND S.agent_person_id = PE.person_id;
+	
+DROP TABLE TempSaleFact2;	
+CREATE TABLE TempSaleFact2 AS
+    SELECT
+	F.time_id,
+	F.sale_date,
+	F.state_code, 
+	F.property_type, 
+	F.suburb,
+	F.property_no_of_bedrooms,
+	F.property_id,
+	F.agent_gender,
+	F.agent_id,
+	F.sale_id,
+	F.price,
+	PE.gender AS client_gender?
+	COUNT(PF.feature_code) AS num_of_feature
+    FROM TempSaleFact1 F, Person PE, Property_Feature PF
+    WHERE F.client_person_id = PE.person_id
+	AND F.property_id = PF.property_id
+	GROUP BY
+	F.time_id,
+	F.sale_date,	
+	F.state_code, 
+	F.property_type, 
+	F.suburb,
+	F.property_no_of_bedrooms,
+	F.property_id,
+	F.agent_gender,
+	F.agent_id,
+	F.sale_id,
+	F.price,
+	PE.gender; 	
 
+	
+ALTER TABLE TempSaleFact2 ADD
+(
+season_id VARCHAR2(50),
+property_feature_category  VARCHAR2(50),
+property_scale VARCHAR2(50)
+);
 
+UPDATE TempSaleFact2
+SET
+season_id = 'spring'
+WHERE TO_CHAR(sale_date,'MM') = 09
+OR TO_CHAR(sale_date,'MM') = 10
+OR TO_CHAR(sale_date,'MM') = 11;
 
+UPDATE TempSaleFact2
+SET
+season_id = 'summer'
+WHERE TO_CHAR(sale_date,'MM') = 12
+OR TO_CHAR(sale_date,'MM') = 01
+OR TO_CHAR(sale_date,'MM') = 02;
 
+UPDATE TempSaleFact2
+SET
+season_id = 'autumn'
+WHERE TO_CHAR(sale_date,'MM') = 3
+OR TO_CHAR(sale_date,'MM') = 4
+OR TO_CHAR(sale_date,'MM') = 5;
 
+UPDATE TempSaleFact2
+SET
+season_id = 'winter'
+WHERE TO_CHAR(sale_date,'MM') = 6
+OR TO_CHAR(sale_date,'MM') = 7
+OR TO_CHAR(sale_date,'MM') = 8;
 
+UPDATE TempSaleFact2
+SET
+property_feature_category = 'Very Basic'
+WHERE num_of_feature <= 10;
 
+UPDATE TempSaleFact2
+SET
+property_feature_category = 'Standard'
+WHERE num_of_feature <= 20
+AND num_of_feature > 10;
 
+UPDATE TempSaleFact2
+SET
+property_feature_category = 'Luxurious'
+WHERE num_of_feature > 20;
 
+UPDATE TempSaleFact2
+SET
+property_scale = 'Extra Small'
+WHERE property_no_of_bedrooms <= 1;
 
+UPDATE TempSaleFact2
+SET
+property_scale = 'Small'
+WHERE property_no_of_bedrooms = 2
+OR property_no_of_bedrooms = 3;
 
+UPDATE TempSaleFact2
+SET
+property_scale = 'Medium'
+WHERE property_no_of_bedrooms = 4
+OR property_no_of_bedrooms = 5
+OR property_no_of_bedrooms = 6;
 
+UPDATE TempSaleFact2
+SET
+property_scale = 'Large'
+WHERE property_no_of_bedrooms = 7
+OR property_no_of_bedrooms = 8
+OR property_no_of_bedrooms = 9
+OR property_no_of_bedrooms = 10;
 
+UPDATE TempSaleFact2
+SET
+property_scale = 'Extra Large'
+WHERE property_no_of_bedrooms > 10;
+--------------------------------------------------------------------------------
+-- create the fact table
+--------------------------------------------------------------------------------
+DROP TABLE SaleFact;	
+CREATE TABLE SaleFact AS
+    SELECT
+	time_id,
+	season_id,
+	state_code, 
+	property_type, 
+	suburb,
+	property_scale,
+	property_feature_category,
+	property_id,
+	agent_gender,
+	client_gender,
+	agent_id,
+	COUNT(sale_id) AS total_num_of_sale,
+	SUM(price) AS total_sales
+    FROM TempSaleFact2
+	GROUP BY 	
+	time_id,
+	season_id,
+	state_code, 
+	property_type, 
+	suburb,
+	property_scale,
+	property_feature_category,
+	property_id,
+	agent_gender,
+	client_gender,
+	agent_id;
 
+--------------------------------------------------------------------------------
+-- create temp fact tables to extract from Rent table 
+--------------------------------------------------------------------------------
+DROP TABLE TempRentFact1;
 
+CREATE TABLE TempRentFact1 AS
+    SELECT DISTINCT
+	TO_CHAR(R.rent_start_date,'YYYYMMDD') AS time_id,
+	R.rent_start_date,
+	R.rent_end_date,
+	PE.gender AS agent_gender,
+	R.client_person_id,
+	R.property_id,
+	P.property_no_of_bedrooms,
+	P.property_type, 
+	A.suburb,
+	ST.state_code, 	
+	R.agent_person_id AS agent_id,
+	R.rent_id,
+	R.price
+    FROM Rent R, State ST, Property P, Address A, Postcode PO, Person PE
+    WHERE R.property_id = P.property_id
+	AND P.address_id = A.address_id
+	AND A.postcode = PO.postcode
+	AND PO.state_code = ST.state_code
+	AND R.agent_person_id = PE.person_id;
+	
+DROP TABLE TempRentFact2;
+CREATE TABLE TempRentFact2 AS
+    SELECT
+	F.time_id,
+	(F.rent_end_date - F.rent_start_date)/30 AS month_diff,
+	F.agent_gender,
+	F.rent_start_date,
+    F.rent_end_date,
+	PE.gender AS client_gender,
+	F.property_id,
+	F.property_type, 	
+	F.state_code, 
+	F.suburb,
+	F.agent_id,
+	F.property_no_of_bedrooms,
+	F.rent_id,
+	F.price,
+	COUNT(PF.feature_code) AS num_of_feature
+    FROM TempRentFact1 F, Person PE, Property_Feature PF
+    WHERE F.client_person_id = PE.person_id
+	AND F.property_id = PF.property_id
+	GROUP BY 	
+	F.time_id,
+	(F.rent_end_date - F.rent_start_date)/30, 
+	F.agent_gender,
+	F.rent_start_date,
+    F.rent_end_date,
+	PE.gender,
+	F.property_id,
+	F.property_type, 	
+	F.state_code, 
+	F.suburb,
+	F.agent_id,
+	F.property_no_of_bedrooms,
+	F.rent_id,
+	F.price;
+------------------------check
+ALTER TABLE TempRentFact2 ADD
+(
+season_id VARCHAR2(50),
+period VARCHAR2(50),
+property_feature_category  VARCHAR2(50),
+property_scale VARCHAR2(50)
+);
 
+UPDATE TempRentFact2
+SET
+season_id = 'spring'
+WHERE TO_CHAR(rent_start_date,'MM') = '9'
+AND TO_CHAR(rent_start_date,'MM') = '10'
+AND TO_CHAR(rent_start_date,'MM') = '11';
 
+UPDATE TempRentFact2
+SET
+season_id = 'summer'
+WHERE TO_CHAR(rent_start_date,'MM') = '12'
+AND TO_CHAR(rent_start_date,'MM') = '1'
+AND TO_CHAR(rent_start_date,'MM') = '2';
 
+UPDATE TempRentFact2
+SET
+season_id = 'autumn'
+WHERE TO_CHAR(rent_start_date,'MM') = '3'
+AND TO_CHAR(rent_start_date,'MM') = '4'
+AND TO_CHAR(rent_start_date,'MM') = '5';
 
+UPDATE TempRentFact2
+SET
+season_id = 'winter'
+WHERE TO_CHAR(rent_start_date,'MM') = '6'
+AND TO_CHAR(rent_start_date,'MM') = '7'
+AND TO_CHAR(rent_start_date,'MM') = '8';
+
+UPDATE TempRentFact2
+SET
+property_feature_category = 'Very Basic'
+WHERE num_of_feature < 10;
+
+UPDATE TempRentFact2
+SET
+property_feature_category = 'Standard'
+WHERE num_of_feature < 20
+AND num_of_feature > 10;
+
+UPDATE TempRentFact2
+SET
+property_feature_category = 'Luxurious'
+WHERE num_of_feature > 20;
+
+UPDATE TempRentFact2
+SET
+property_scale = 'Extra Small'
+WHERE property_no_of_bedrooms <= 1;
+
+UPDATE TempRentFact2
+SET
+property_scale = 'Small'
+WHERE property_no_of_bedrooms = 2
+AND property_no_of_bedrooms = 3;
+
+UPDATE TempRentFact2
+SET
+property_scale = 'Medium'
+WHERE property_no_of_bedrooms = 4
+AND property_no_of_bedrooms = 5
+AND property_no_of_bedrooms = 6;
+
+UPDATE TempRentFact2
+SET
+property_scale = 'Large'
+WHERE property_no_of_bedrooms = 7
+AND property_no_of_bedrooms = 8
+AND property_no_of_bedrooms = 9
+AND property_no_of_bedrooms = 10;
+
+UPDATE TempRentFact2
+SET
+property_scale = 'Extra Large'
+WHERE property_no_of_bedrooms > 10;
+
+UPDATE TempRentFact2
+SET
+period = 'Short'
+WHERE  month_diff < 6;
+
+UPDATE TempRentFact2
+SET
+period = 'Medium'
+WHERE  month_diff < 12;
+
+UPDATE TempRentFact2
+SET
+period = 'Long'
+WHERE  month_diff > 12;
+--------------------------------------------------------------------------------
+-- create the fact table
+--------------------------------------------------------------------------------
+DROP TABLE RentFact;	
+CREATE TABLE RentFact AS
+    SELECT
+	time_id,
+	season_id,
+	period,
+	agent_gender,
+	client_gender,
+	property_id,
+	property_scale,
+	property_feature_category,
+	property_type, 
+	suburb,
+	state_code, 
+	agent_id,
+	COUNT(rent_id) AS total_num_of_rent,
+	SUM(price) AS total_rental_fees
+    FROM TempRentFact2
+	GROUP BY 	
+	time_id,
+	season_id,	
+	period,
+	agent_gender,
+	client_gender,
+	property_id,
+	property_scale,
+	property_feature_category,
+	property_type, 
+	suburb,
+	state_code, 
+	agent_id;
+--------------------------------------------------------------------------------
+-- create temp fact tables to extract from Client table 
+--------------------------------------------------------------------------------
+DROP TABLE TempClientFact1;
+
+CREATE TABLE TempClientFact1 AS
+    SELECT DISTINCT
+	P.gender,
+	C.person_id AS client_id,
+	C.max_budget
+	FROM Client C, Person P
+	WHERE C.person_id = P.person_id
+
+ALTER TABLE TempClientFact1 ADD
+(
+budget_range VARCHAR2(50),
+);
+
+UPDATE TempClientFact1
+SET
+budget_range = 'Low'
+WHERE max_budget <= 1000;
+
+UPDATE TempClientFact1
+SET
+budget_range = 'Medium'
+WHERE max_budget <= 100000
+AND max_budget > 1000;
+
+UPDATE TempClientFact1
+SET
+budget_range = 'High'
+WHERE max_budget <= 10000000
+AND max_budget > 100000;
+
+--------------------------------------------------------------------------------
+-- create the fact table
+--------------------------------------------------------------------------------
+DROP TABLE ClientFact;	
+CREATE TABLE ClientFact AS
+    SELECT
+	gender,
+	client_id,
+	budget_range,
+	COUNT(client_id) AS total_num_of_clients,
+    FROM TempClientFact1
+	GROUP BY 	
+	gender,
+	client_id,
+	budget_range;
+--------------------------------------------------------------------------------
+-- create temp fact tables to extract from Visit table 
+--------------------------------------------------------------------------------
+DROP TABLE TempVisitFact1;
+
+CREATE TABLE TempVisitFact1 AS
+    SELECT DISTINCT
+	TO_CHAR(V.visit_date,'YYYYMMDD') AS time_id,
+	V.visit_date,
+	V.property_id,
+	V.property_id || V.client_person_id || V.agent_person_id  AS visit_id,
+	FROM Visit V;
+
+ALTER TABLE TempVisitFact1 ADD
+(
+season_id VARCHAR2(50),
+);
+
+UPDATE TempVisitFact1
+SET
+season_id = 'spring'
+WHERE TO_CHAR(visit_date,'MM') = '9'
+AND TO_CHAR(visit_date,'MM') = '10'
+AND TO_CHAR(visit_date,'MM') = '11';
+
+UPDATE TempVisitFact1
+SET
+season_id = 'summer'
+WHERE TO_CHAR(visit_date,'MM') = '12'
+AND TO_CHAR(visit_date,'MM') = '1'
+AND TO_CHAR(visit_date,'MM') = '2';
+
+UPDATE TempVisitFact1
+SET
+season_id = 'autumn'
+WHERE TO_CHAR(visit_date,'MM') = '3'
+AND TO_CHAR(visit_date,'MM') = '4'
+AND TO_CHAR(visit_date,'MM') = '5';
+
+UPDATE TempVisitFact1
+SET
+season_id = 'winter'
+WHERE TO_CHAR(visit_date,'MM') = '6'
+AND TO_CHAR(visit_date,'MM') = '7'
+AND TO_CHAR(visit_date,'MM') = '8';
+--------------------------------------------------------------------------------
+-- create the fact table
+--------------------------------------------------------------------------------
+DROP TABLE VisitFact;	
+CREATE TABLE VisitFact AS
+    SELECT
+	time_id,
+	season_id,
+	COUNT(visit_id) AS total_num_of_visit,
+	COUNT(property_id) AS total_num_of_property_has_visit,
+    FROM TempVisitFact1
+	GROUP BY 	
+	time_id,
+	season_id;
+		
+--------------------------------------------------------------------------------
+-- create temp fact tables to extract from Advertisement table 
+--------------------------------------------------------------------------------
+DROP TABLE TempAdFact1;
+
+CREATE TABLE TempAdFact1 AS
+    SELECT DISTINCT
+	TO_CHAR(P.property_date_added,'YYYYMMDD') AS time_id,
+	PA.property_id
+	FROM Property P, Property_Advert PA
+	WHERE P.property_id =  PA.property_id;
+
+--------------------------------------------------------------------------------
+-- create the fact table
+--------------------------------------------------------------------------------
+DROP TABLE AdFact;	
+CREATE TABLE AdFact AS
+    SELECT
+	time_id,
+	property_id,
+	COUNT(property_id) AS total_num_of_property_has_ads
+    FROM TempAdFact1
+	GROUP BY 	
+	time_id,
+	property_id;		
+
+--------------------------------------------------------------------------------
+-- create temp fact tables to extract from Agent table 
+--------------------------------------------------------------------------------
+DROP TABLE TempAgentFact1;
+CREATE TABLE TempAgentFact1 AS
+	SELECT 
+	office_id,
+	COUNT(*) AS num_of_employees
+	FROM Agent_Office AO
+	GROUP BY office_id;
+	
+DROP TABLE TempAgentFact2
+CREATE TABLE TempAgentFact2 AS
+    SELECT DISTINCT
+	O.office_id
+	A.person_id AS agent_id,
+	P.gender,
+	A.salary,
+	F.num_of_employees
+	FROM TempAgentFact1 F, Agent_Office AO, Agent A, Person P
+	WHERE F.office_id = AO.office_id
+	AND AO.person_id = A.person_id
+	AND A.person_id = P.person_id;
+	
+ALTER TABLE TempVisitFact2 ADD
+(
+office_size VARCHAR2(50),
+);
+INSERT INTO OfficeSizeDim 
+VALUES ('Small', 'Less than four employees');
+
+INSERT INTO OfficeSizeDim 
+VALUES ('Medium', 'Four to twelve employees');
+
+INSERT INTO OfficeSizeDim 
+VALUES ('Big', 'More than twelve employees');
+
+UPDATE TempVisitFact2
+SET
+office_size = 'Small'
+WHERE num_of_employees < 4;
+
+UPDATE TempVisitFact2
+SET
+office_size = 'Medium'
+WHERE num_of_employees >= 4
+AND num_of_employees <= 12;
+
+UPDATE TempVisitFact2
+SET
+office_size = 'Big'
+WHERE num_of_employees > 12 ;
+
+--------------------------------------------------------------------------------
+-- create the fact table
+--------------------------------------------------------------------------------
+DROP TABLE VisitFact;	
+CREATE TABLE VisitFact AS
+    SELECT
+	office_size,
+	gender,
+	agent_id,
+	SUM(salary) AS total_salary,
+	COUNT(agent_id) AS total_num_of_agents,
+    FROM TempVisitFact2
+	GROUP BY 	
+	office_size,
+	gender,
+	agent_id;
+	
 
 
 
