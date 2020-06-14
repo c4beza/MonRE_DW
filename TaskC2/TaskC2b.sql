@@ -219,33 +219,33 @@ CREATE TABLE OfficeSizeDim_V2(
 DROP TABLE TimeDim_V2;
 --18. create TimeDim_V2 Dim_V2ension
 CREATE TABLE TimeDim_V2 AS
-SELECT * FROM (
+SELECT time_id,"year" as year, "month" as month, "day" as day FROM (
 SELECT
 TO_CHAR(sale_date,'YYYYMMDD') AS time_id,
 TO_CHAR(sale_date,'YYYY') AS "year",
 TO_CHAR(sale_date,'MM') AS "month",
-TO_CHAR(sale_date,'DD') AS "date"
+TO_CHAR(sale_date,'DD') AS "day"
 FROM Sale
 UNION
 SELECT
 TO_CHAR(rent_start_date,'YYYYMMDD') AS time_id,
 TO_CHAR(rent_start_date,'YYYY') AS "year",
 TO_CHAR(rent_start_date, 'MM') AS "month",
-TO_CHAR(rent_start_date, 'DD') AS "date"
+TO_CHAR(rent_start_date, 'DD') AS "day"
 FROM Rent
 UNION
 SELECT
 TO_CHAR(visit_date,'YYYYMMDD') AS time_id,
 TO_CHAR(visit_date,'YYYY') AS "year",
 TO_CHAR(visit_date, 'MM') AS "month",
-TO_CHAR(visit_date,  'DD') AS "date"
+TO_CHAR(visit_date,  'DD') AS "day"
 FROM Visit
 UNION
 SELECT
 TO_CHAR(property_date_added,'YYYYMMDD') AS time_id,
 TO_CHAR(property_date_added,'YYYY') AS "year",
 TO_CHAR(property_date_added, 'MM') AS "month",
-TO_CHAR(property_date_added, 'DD') AS "date"
+TO_CHAR(property_date_added, 'DD') AS "day"
 FROM Property
 );
 --------------------------------------------------------------------------------
