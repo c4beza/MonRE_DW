@@ -103,14 +103,14 @@ CREATE TABLE Visit AS SELECT * FROM MonRE.Visit;
 --------------------------------------------------------------------------------
 -- first create the dimensions
 --------------------------------------------------------------------------------
-DROP TABLE Agent_ClientGenderDim;
---1. create Agent_ClientGenderDim dimension 
-CREATE TABLE Agent_ClientGenderDim AS
+DROP TABLE Agent_ClientGenderDim_V2;
+--1. create Agent_ClientGenderDim_V2  
+CREATE TABLE Agent_ClientGenderDim_V2 AS
 SELECT DISTINCT gender FROM Person;
 --------------------------------------------------------------------------------
-DROP TABLE PropertyFeatureDim;
---2. create PropertyFeatureDim dimension 
-CREATE TABLE PropertyFeatureDim AS
+DROP TABLE PropertyFeatureDim_V2;
+--2. create PropertyFeatureDim_V2 
+CREATE TABLE PropertyFeatureDim_V2 AS
 SELECT P.property_id,
 1.0/COUNT(*) AS weight_factor,
 listagg (PF.feature_code,'_') within GROUP (ORDER BY PF.feature_code) AS property_feature_list
@@ -118,57 +118,57 @@ FROM Property P, Property_Feature PF
 WHERE P.property_id = PF.property_id
 GROUP BY P.property_id;
 --------------------------------------------------------------------------------
-DROP TABLE Property_Feature_Bridge_Table;
---3. create Property_Feature_Bridge_Table
-CREATE TABLE Property_Feature_Bridge_Table AS
+DROP TABLE Property_Feature_Bridge_Table_V2;
+--3. create Property_Feature_Bridge_Table_V2
+CREATE TABLE Property_Feature_Bridge_Table_V2 AS
 SELECT * FROM Property_Feature;
 --------------------------------------------------------------------------------
-DROP TABLE FeatureDim;
---4. create FeatureDim dimension
-CREATE TABLE FeatureDim AS
+DROP TABLE FeatureDim_V2;
+--4. create FeatureDim_V2 Dim_V2ension
+CREATE TABLE FeatureDim_V2 AS
 SELECT * FROM Feature;
 --------------------------------------------------------------------------------
-DROP TABLE RentPriceDim;
---5. create RentPriceDim dimension
-CREATE TABLE RentPriceDim AS
+DROP TABLE RentPriceDim_V2;
+--5. create RentPriceDim_V2 Dim_V2ension
+CREATE TABLE RentPriceDim_V2 AS
 SELECT property_id, rent_start_date, rent_end_date, price
 FROM Rent;
 --------------------------------------------------------------------------------
-DROP TABLE PropertyScaleDim;
---6. create PropertyScaleDim dimension
-CREATE TABLE PropertyScaleDim (
+DROP TABLE PropertyScaleDim_V2;
+--6. create PropertyScaleDim_V2 Dim_V2ension
+CREATE TABLE PropertyScaleDim_V2 (
     property_scale        VARCHAR2(50),
     scale_description     VARCHAR2(50)
 );
 --------------------------------------------------------------------------------
-DROP TABLE PropertyFeatureCategoryDim;
---7. create PropertyFeatureCategoryDim dimension
-CREATE TABLE PropertyFeatureCategoryDim (
+DROP TABLE PropertyFeatureCategoryDim_V2;
+--7. create PropertyFeatureCategoryDim_V2 Dim_V2ension
+CREATE TABLE PropertyFeatureCategoryDim_V2 (
     property_feature_category        VARCHAR2(50),
     category_description     VARCHAR2(50)
 );
 --------------------------------------------------------------------------------
-DROP TABLE SuburbDim;
---8. create SuburbDim dimension
-CREATE TABLE SuburbDim AS
+DROP TABLE SuburbDim_V2;
+--8. create SuburbDim_V2 Dim_V2ension
+CREATE TABLE SuburbDim_V2 AS
 SELECT DISTINCT suburb
 FROM Address;
 --------------------------------------------------------------------------------
-DROP TABLE PropertyTypeDim;
---9. create PropertyTypeDim dimension
-CREATE TABLE PropertyTypeDim AS
+DROP TABLE PropertyTypeDim_V2;
+--9. create PropertyTypeDim_V2 Dim_V2ension
+CREATE TABLE PropertyTypeDim_V2 AS
 SELECT DISTINCT property_type
 FROM Property;
 --------------------------------------------------------------------------------
-DROP TABLE StateDim;
---10. create StateDim dimension
-CREATE TABLE StateDim AS
+DROP TABLE StateDim_V2;
+--10. create StateDim_V2 Dim_V2ension
+CREATE TABLE StateDim_V2 AS
 SELECT DISTINCT state_code
 FROM State;
 --------------------------------------------------------------------------------
-DROP TABLE AgentDim;
---11. AgentDim dimension 
-CREATE TABLE AgentDim AS
+DROP TABLE AgentDim_V2;
+--11. AgentDim_V2 Dim_V2ension 
+CREATE TABLE AgentDim_V2 AS
 SELECT A.person_id,
 P.first_name || ' ' || P.last_name AS agent_name,
 1.0/COUNT(*) AS weight_factor,
@@ -178,47 +178,47 @@ WHERE A.person_id = P.person_id
 AND A.person_id = AO.person_id
 GROUP BY A.person_id, P.first_name || ' ' || P.last_name;
 --------------------------------------------------------------------------------
-DROP TABLE Agent_Ofiice_Bridge_Table;
---12. create Agent_Ofiice_Bridge_Table
-CREATE TABLE Agent_Ofiice_Bridge_Table AS
+DROP TABLE Agent_Office_Bridge_Table_V2;
+--12. create Agent_Office_Bridge_Table_V2
+CREATE TABLE Agent_Office_Bridge_Table_V2 AS
 SELECT * FROM Agent_Office;
 --------------------------------------------------------------------------------
-DROP TABLE OfficeDim;
---13. create OfficeDim dimension
-CREATE TABLE OfficeDim AS
+DROP TABLE OfficeDim_V2;
+--13. create OfficeDim_V2 Dim_V2ension
+CREATE TABLE OfficeDim_V2 AS
 SELECT * FROM Office;
 --------------------------------------------------------------------------------
-DROP TABLE RentalPeriodDim;
---14. create RentalPeriodDim dimension
-CREATE TABLE RentalPeriodDim(
+DROP TABLE RentalPeriodDim_V2;
+--14. create RentalPeriodDim_V2 Dim_V2ension
+CREATE TABLE RentalPeriodDim_V2(
     period        VARCHAR2(50),
     period_description     VARCHAR2(50)
 );
 --------------------------------------------------------------------------------
-DROP TABLE SeasonDim;
---15. create SeasonDim dimension
-CREATE TABLE SeasonDim(
+DROP TABLE SeasonDim_V2;
+--15. create SeasonDim_V2 Dim_V2ension
+CREATE TABLE SeasonDim_V2(
     season_id        VARCHAR2(50),
     season_description     VARCHAR2(50)
 );
 --------------------------------------------------------------------------------
-DROP TABLE MaxBudgetRangeDim;
---16. create MaxBudgetRangeDim dimension
-CREATE TABLE MaxBudgetRangeDim(
+DROP TABLE MaxBudgetRangeDim_V2;
+--16. create MaxBudgetRangeDim_V2 Dim_V2ension
+CREATE TABLE MaxBudgetRangeDim_V2(
     budget_range        VARCHAR2(50),
     range_description     VARCHAR2(50)
 );
 --------------------------------------------------------------------------------
-DROP TABLE OfficeSizeDim;
---17. create OfficeSizeDim dimension
-CREATE TABLE OfficeSizeDim(
+DROP TABLE OfficeSizeDim_V2;
+--17. create OfficeSizeDim_V2 Dim_V2ension
+CREATE TABLE OfficeSizeDim_V2(
     office_size        VARCHAR2(50),
     office_size_description     VARCHAR2(50)
 );
 --------------------------------------------------------------------------------
-DROP TABLE TimeDim;
---18. create TimeDim dimension
-CREATE TABLE TimeDim AS
+DROP TABLE TimeDim_V2;
+--18. create TimeDim_V2 Dim_V2ension
+CREATE TABLE TimeDim_V2 AS
 SELECT * FROM (
 SELECT
 TO_CHAR(sale_date,'YYYYMMDD') AS time_id,
@@ -249,9 +249,9 @@ TO_CHAR(property_date_added, 'DD') AS "date"
 FROM Property
 );
 --------------------------------------------------------------------------------
-DROP TABLE PropertyAdDim;
---19. create PropertyAdDim dimension 
-CREATE TABLE PropertyAdDim AS
+DROP TABLE PropertyAdDim_V2;
+--19. create PropertyAdDim_V2 Dim_V2ension 
+CREATE TABLE PropertyAdDim_V2 AS
 SELECT P.property_id,
 1.0/COUNT(*) AS weight_factor,
 listagg (PA.advert_id,'_') within GROUP (ORDER BY PA.advert_id) AS property_ad_list
@@ -259,19 +259,19 @@ FROM Property P, Property_Advert PA
 WHERE P.property_id = PA.property_id
 GROUP BY P.property_id;
 --------------------------------------------------------------------------------
-DROP TABLE Property_Ad_Bridge_Table;
---20. create Property_Ad_Bridge_Table
-CREATE TABLE Property_Ad_Bridge_Table AS
+DROP TABLE Property_Ad_Bridge_Table_V2;
+--20. create Property_Ad_Bridge_Table_V2
+CREATE TABLE Property_Ad_Bridge_Table_V2 AS
 SELECT property_id, advert_id FROM Property_Advert;
 --------------------------------------------------------------------------------
-DROP TABLE AdvertisementDim;
---21. create AdvertisementDim dimension
-CREATE TABLE AdvertisementDim AS
+DROP TABLE AdvertisementDim_V2;
+--21. create AdvertisementDim_V2 Dim_V2ension
+CREATE TABLE AdvertisementDim_V2 AS
 SELECT * FROM Advertisement;
 --------------------------------------------------------------------------------
-DROP TABLE ClientDim;
---22. create ClientDim dimension 
-CREATE TABLE ClientDim AS
+DROP TABLE ClientDim_V2;
+--22. create ClientDim_V2 Dim_V2ension 
+CREATE TABLE ClientDim_V2 AS
 SELECT C.person_id,
 P.first_name || ' ' || P.last_name AS client_name,
 1.0/COUNT(*) AS weight_factor,
@@ -281,89 +281,89 @@ WHERE C.person_id = P.person_id
 AND CW. person_id = C.person_id
 GROUP BY C.person_id, P.first_name || ' ' || P.last_name;
 --------------------------------------------------------------------------------
-DROP TABLE Client_Wish_Bridge_Table;
---23. create Client_Wish_Bridge_Table
-CREATE TABLE Client_Wish_Bridge_Table AS
+DROP TABLE Client_Wish_Bridge_Table_V2;
+--23. create Client_Wish_Bridge_Table_V2
+CREATE TABLE Client_Wish_Bridge_Table_V2 AS
 SELECT * FROM Client_Wish;
 
 --------------------------------------------------------------------------------
--- populate dimensions created from scratch (i.e. PropertyScaleDim, PropertyFeatureCategoryDim
--- RentalPeriodDim, SeasonDim, MaxBudgetRangeDim, OfficeSizeDim )
+-- populate Dimensions created from scratch (i.e. PropertyScaleDim_V2, PropertyFeatureCategoryDim_V2
+-- RentalPeriodDim_V2, SeasonDim_V2, MaxBudgetRangeDim_V2, OfficeSizeDim_V2 )
 --------------------------------------------------------------------------------
 -- populate Property Scale dimension
-INSERT INTO PropertyScaleDim 
+INSERT INTO PropertyScaleDim_V2 
 VALUES ('Extra Small', 'Has one or zero bedroom');
 
-INSERT INTO PropertyScaleDim 
+INSERT INTO PropertyScaleDim_V2 
 VALUES ('Small', 'Has two or three bedrooms');
 
-INSERT INTO PropertyScaleDim 
+INSERT INTO PropertyScaleDim_V2 
 VALUES ('Medium', 'Has three to six bedrooms');
 
-INSERT INTO PropertyScaleDim 
+INSERT INTO PropertyScaleDim_V2 
 VALUES ('Large', 'Has six to ten bedrooms');
 
-INSERT INTO PropertyScaleDim 
+INSERT INTO PropertyScaleDim_V2 
 VALUES ('Extra Large', 'Has more than ten bedrooms');
 
 -- populate Property Feature Category dimension
-INSERT INTO PropertyFeatureCategoryDim 
+INSERT INTO PropertyFeatureCategoryDim_V2 
 VALUES ('Very Basic', 'Has less than ten features');
 
-INSERT INTO PropertyFeatureCategoryDim 
+INSERT INTO PropertyFeatureCategoryDim_V2 
 VALUES ('Standard', 'Has ten to twenty features');
 
-INSERT INTO PropertyFeatureCategoryDim 
+INSERT INTO PropertyFeatureCategoryDim_V2 
 VALUES ('Luxurious', 'Has more than twenty features');
 
 -- populate Rental Period dimension
-INSERT INTO RentalPeriodDim 
+INSERT INTO RentalPeriodDim_V2 
 VALUES ('Short', 'Less than six months');
 
-INSERT INTO RentalPeriodDim 
+INSERT INTO RentalPeriodDim_V2 
 VALUES ('Medium', 'Six to twelve months');
 
-INSERT INTO RentalPeriodDim 
+INSERT INTO RentalPeriodDim_V2 
 VALUES ('Long', 'More than twelve months');
 
 -- populate Season dimension
-INSERT INTO SeasonDim 
+INSERT INTO SeasonDim_V2 
 VALUES ('spring', 'Sep, Oct, Nov');
 
-INSERT INTO SeasonDim 
+INSERT INTO SeasonDim_V2 
 VALUES ('summer', 'Dec, Jan, Feb');
 
-INSERT INTO SeasonDim 
+INSERT INTO SeasonDim_V2 
 VALUES ('autumn', 'Mar, Apr, May');
 
-INSERT INTO SeasonDim 
+INSERT INTO SeasonDim_V2 
 VALUES ('winter', 'Jun, Jul, Aug');
 
 -- populate Max Budget Range dimension
-INSERT INTO MaxBudgetRangeDim 
+INSERT INTO MaxBudgetRangeDim_V2 
 VALUES ('Low', '0 to 1000');
 
-INSERT INTO MaxBudgetRangeDim 
+INSERT INTO MaxBudgetRangeDim_V2 
 VALUES ('Medium', '1001 to 100000');
 
-INSERT INTO MaxBudgetRangeDim 
+INSERT INTO MaxBudgetRangeDim_V2 
 VALUES ('High', '100001 to 10000000');
 
 -- populate Office Size dimension
-INSERT INTO OfficeSizeDim 
+INSERT INTO OfficeSizeDim_V2 
 VALUES ('Small', 'Less than four employees');
 
-INSERT INTO OfficeSizeDim 
+INSERT INTO OfficeSizeDim_V2 
 VALUES ('Medium', 'Four to twelve employees');
 
-INSERT INTO OfficeSizeDim 
+INSERT INTO OfficeSizeDim_V2 
 VALUES ('Big', 'More than twelve employees');
 --------------------------------------------------------------------------------
 -- create temp fact tables to extract from Sale table 
 --------------------------------------------------------------------------------
-DROP TABLE TempSaleFact1;
+DROP TABLE TempSaleFact1_V2;
 
-CREATE TABLE TempSaleFact1 AS
+CREATE TABLE TempSaleFact1_V2 AS
     SELECT DISTINCT
 	TO_CHAR(S.sale_date,'YYYYMMDD') AS time_id,
 	S.sale_date,
@@ -384,8 +384,8 @@ CREATE TABLE TempSaleFact1 AS
 	AND PO.state_code = ST.state_code
 	AND S.agent_person_id = PE.person_id;
 	
-DROP TABLE TempSaleFact2;	
-CREATE TABLE TempSaleFact2 AS
+DROP TABLE TempSaleFact2_V2;	
+CREATE TABLE TempSaleFact2_V2 AS
     SELECT
 	F.time_id,
 	F.sale_date,
@@ -400,7 +400,7 @@ CREATE TABLE TempSaleFact2 AS
 	F.price,
 	PE.gender AS client_gender?
 	COUNT(PF.feature_code) AS num_of_feature
-    FROM TempSaleFact1 F, Person PE, Property_Feature PF
+    FROM TempSaleFact1_V2 F, Person PE, Property_Feature PF
     WHERE F.client_person_id = PE.person_id
 	AND F.property_id = PF.property_id
 	GROUP BY
@@ -418,76 +418,76 @@ CREATE TABLE TempSaleFact2 AS
 	PE.gender; 	
 
 	
-ALTER TABLE TempSaleFact2 ADD
+ALTER TABLE TempSaleFact2_V2 ADD
 (
 season_id VARCHAR2(50),
 property_feature_category  VARCHAR2(50),
 property_scale VARCHAR2(50)
 );
 
-UPDATE TempSaleFact2
+UPDATE TempSaleFact2_V2
 SET
 season_id = 'spring'
 WHERE TO_CHAR(sale_date,'MM') = 09
 OR TO_CHAR(sale_date,'MM') = 10
 OR TO_CHAR(sale_date,'MM') = 11;
 
-UPDATE TempSaleFact2
+UPDATE TempSaleFact2_V2
 SET
 season_id = 'summer'
 WHERE TO_CHAR(sale_date,'MM') = 12
 OR TO_CHAR(sale_date,'MM') = 01
 OR TO_CHAR(sale_date,'MM') = 02;
 
-UPDATE TempSaleFact2
+UPDATE TempSaleFact2_V2
 SET
 season_id = 'autumn'
 WHERE TO_CHAR(sale_date,'MM') = 3
 OR TO_CHAR(sale_date,'MM') = 4
 OR TO_CHAR(sale_date,'MM') = 5;
 
-UPDATE TempSaleFact2
+UPDATE TempSaleFact2_V2
 SET
 season_id = 'winter'
 WHERE TO_CHAR(sale_date,'MM') = 6
 OR TO_CHAR(sale_date,'MM') = 7
 OR TO_CHAR(sale_date,'MM') = 8;
 
-UPDATE TempSaleFact2
+UPDATE TempSaleFact2_V2
 SET
 property_feature_category = 'Very Basic'
 WHERE num_of_feature <= 10;
 
-UPDATE TempSaleFact2
+UPDATE TempSaleFact2_V2
 SET
 property_feature_category = 'Standard'
 WHERE num_of_feature <= 20
 AND num_of_feature > 10;
 
-UPDATE TempSaleFact2
+UPDATE TempSaleFact2_V2
 SET
 property_feature_category = 'Luxurious'
 WHERE num_of_feature > 20;
 
-UPDATE TempSaleFact2
+UPDATE TempSaleFact2_V2
 SET
 property_scale = 'Extra Small'
 WHERE property_no_of_bedrooms <= 1;
 
-UPDATE TempSaleFact2
+UPDATE TempSaleFact2_V2
 SET
 property_scale = 'Small'
 WHERE property_no_of_bedrooms = 2
 OR property_no_of_bedrooms = 3;
 
-UPDATE TempSaleFact2
+UPDATE TempSaleFact2_V2
 SET
 property_scale = 'Medium'
 WHERE property_no_of_bedrooms = 4
 OR property_no_of_bedrooms = 5
 OR property_no_of_bedrooms = 6;
 
-UPDATE TempSaleFact2
+UPDATE TempSaleFact2_V2
 SET
 property_scale = 'Large'
 WHERE property_no_of_bedrooms = 7
@@ -495,15 +495,15 @@ OR property_no_of_bedrooms = 8
 OR property_no_of_bedrooms = 9
 OR property_no_of_bedrooms = 10;
 
-UPDATE TempSaleFact2
+UPDATE TempSaleFact2_V2
 SET
 property_scale = 'Extra Large'
 WHERE property_no_of_bedrooms > 10;
 --------------------------------------------------------------------------------
 -- create the fact table
 --------------------------------------------------------------------------------
-DROP TABLE SaleFact;	
-CREATE TABLE SaleFact AS
+DROP TABLE SaleFact_V2;	
+CREATE TABLE SaleFact_V2 AS
     SELECT
 	time_id,
 	season_id,
@@ -518,7 +518,7 @@ CREATE TABLE SaleFact AS
 	agent_id,
 	COUNT(sale_id) AS total_num_of_sale,
 	SUM(price) AS total_sales
-    FROM TempSaleFact2
+    FROM TempSaleFact2_V2
 	GROUP BY 	
 	time_id,
 	season_id,
@@ -535,9 +535,9 @@ CREATE TABLE SaleFact AS
 --------------------------------------------------------------------------------
 -- create temp fact tables to extract from Rent table 
 --------------------------------------------------------------------------------
-DROP TABLE TempRentFact1;
+DROP TABLE TempRentFact1_V2;
 
-CREATE TABLE TempRentFact1 AS
+CREATE TABLE TempRentFact1_V2 AS
     SELECT DISTINCT
 	TO_CHAR(R.rent_start_date,'YYYYMMDD') AS time_id,
 	R.rent_start_date,
@@ -559,8 +559,8 @@ CREATE TABLE TempRentFact1 AS
 	AND PO.state_code = ST.state_code
 	AND R.agent_person_id = PE.person_id;
 	
-DROP TABLE TempRentFact2;
-CREATE TABLE TempRentFact2 AS
+DROP TABLE TempRentFact2_V2;
+CREATE TABLE TempRentFact2_V2 AS
     SELECT
 	F.time_id,
 	(F.rent_end_date - F.rent_start_date)/30 AS month_diff,
@@ -577,7 +577,7 @@ CREATE TABLE TempRentFact2 AS
 	F.rent_id,
 	F.price,
 	COUNT(PF.feature_code) AS num_of_feature
-    FROM TempRentFact1 F, Person PE, Property_Feature PF
+    FROM TempRentFact1_V2 F, Person PE, Property_Feature PF
     WHERE F.client_person_id = PE.person_id
 	AND F.property_id = PF.property_id
 	GROUP BY 	
@@ -596,7 +596,7 @@ CREATE TABLE TempRentFact2 AS
 	F.rent_id,
 	F.price;
 ------------------------check
-ALTER TABLE TempRentFact2 ADD
+ALTER TABLE TempRentFact2_V2 ADD
 (
 season_id VARCHAR2(50),
 period VARCHAR2(50),
@@ -604,100 +604,101 @@ property_feature_category  VARCHAR2(50),
 property_scale VARCHAR2(50)
 );
 
-UPDATE TempRentFact2
+UPDATE TempRentFact2_V2
 SET
 season_id = 'spring'
-WHERE TO_CHAR(rent_start_date,'MM') = '9'
-AND TO_CHAR(rent_start_date,'MM') = '10'
-AND TO_CHAR(rent_start_date,'MM') = '11';
+WHERE TO_CHAR(rent_start_date,'MM') = 9
+OR TO_CHAR(rent_start_date,'MM') = 10
+OR TO_CHAR(rent_start_date,'MM') = 11;
 
-UPDATE TempRentFact2
+UPDATE TempRentFact2_V2
 SET
 season_id = 'summer'
-WHERE TO_CHAR(rent_start_date,'MM') = '12'
-AND TO_CHAR(rent_start_date,'MM') = '1'
-AND TO_CHAR(rent_start_date,'MM') = '2';
+WHERE TO_CHAR(rent_start_date,'MM') = 12
+OR TO_CHAR(rent_start_date,'MM') = 1
+OR TO_CHAR(rent_start_date,'MM') = 2;
 
-UPDATE TempRentFact2
+UPDATE TempRentFact2_V2
 SET
 season_id = 'autumn'
-WHERE TO_CHAR(rent_start_date,'MM') = '3'
-AND TO_CHAR(rent_start_date,'MM') = '4'
-AND TO_CHAR(rent_start_date,'MM') = '5';
+WHERE TO_CHAR(rent_start_date,'MM') = 3
+OR TO_CHAR(rent_start_date,'MM') = 4
+OR TO_CHAR(rent_start_date,'MM') = 5;
 
-UPDATE TempRentFact2
+UPDATE TempRentFact2_V2
 SET
 season_id = 'winter'
-WHERE TO_CHAR(rent_start_date,'MM') = '6'
-AND TO_CHAR(rent_start_date,'MM') = '7'
-AND TO_CHAR(rent_start_date,'MM') = '8';
+WHERE TO_CHAR(rent_start_date,'MM') = 6
+OR TO_CHAR(rent_start_date,'MM') = 7
+OR TO_CHAR(rent_start_date,'MM') = 8;
 
-UPDATE TempRentFact2
+UPDATE TempRentFact2_V2
 SET
 property_feature_category = 'Very Basic'
-WHERE num_of_feature < 10;
+WHERE num_of_feature <= 10;
 
-UPDATE TempRentFact2
+UPDATE TempRentFact2_V2
 SET
 property_feature_category = 'Standard'
-WHERE num_of_feature < 20
+WHERE num_of_feature <= 20
 AND num_of_feature > 10;
 
-UPDATE TempRentFact2
+UPDATE TempRentFact2_V2
 SET
 property_feature_category = 'Luxurious'
 WHERE num_of_feature > 20;
 
-UPDATE TempRentFact2
+UPDATE TempRentFact2_V2
 SET
 property_scale = 'Extra Small'
 WHERE property_no_of_bedrooms <= 1;
 
-UPDATE TempRentFact2
+UPDATE TempRentFact2_V2
 SET
 property_scale = 'Small'
 WHERE property_no_of_bedrooms = 2
-AND property_no_of_bedrooms = 3;
+OR property_no_of_bedrooms = 3;
 
-UPDATE TempRentFact2
+UPDATE TempRentFact2_V2
 SET
 property_scale = 'Medium'
 WHERE property_no_of_bedrooms = 4
-AND property_no_of_bedrooms = 5
-AND property_no_of_bedrooms = 6;
+OR property_no_of_bedrooms = 5
+OR property_no_of_bedrooms = 6;
 
-UPDATE TempRentFact2
+UPDATE TempRentFact2_V2
 SET
 property_scale = 'Large'
 WHERE property_no_of_bedrooms = 7
-AND property_no_of_bedrooms = 8
-AND property_no_of_bedrooms = 9
-AND property_no_of_bedrooms = 10;
+OR property_no_of_bedrooms = 8
+OR property_no_of_bedrooms = 9
+OR property_no_of_bedrooms = 10;
 
-UPDATE TempRentFact2
+UPDATE TempRentFact2_V2
 SET
 property_scale = 'Extra Large'
 WHERE property_no_of_bedrooms > 10;
 
-UPDATE TempRentFact2
+UPDATE TempRentFact2_V2
 SET
 period = 'Short'
 WHERE  month_diff < 6;
 
-UPDATE TempRentFact2
+UPDATE TempRentFact2_V2
 SET
 period = 'Medium'
-WHERE  month_diff < 12;
+WHERE month_diff >= 6
+AND month_diff < 12;
 
-UPDATE TempRentFact2
+UPDATE TempRentFact2_V2
 SET
 period = 'Long'
-WHERE  month_diff > 12;
+WHERE  month_diff >= 12;
 --------------------------------------------------------------------------------
 -- create the fact table
 --------------------------------------------------------------------------------
-DROP TABLE RentFact;	
-CREATE TABLE RentFact AS
+DROP TABLE RentFact_V2;	
+CREATE TABLE RentFact_V2 AS
     SELECT
 	time_id,
 	season_id,
@@ -713,7 +714,7 @@ CREATE TABLE RentFact AS
 	agent_id,
 	COUNT(rent_id) AS total_num_of_rent,
 	SUM(price) AS total_rental_fees
-    FROM TempRentFact2
+    FROM TempRentFact2_V2
 	GROUP BY 	
 	time_id,
 	season_id,	
@@ -730,33 +731,33 @@ CREATE TABLE RentFact AS
 --------------------------------------------------------------------------------
 -- create temp fact tables to extract from Client table 
 --------------------------------------------------------------------------------
-DROP TABLE TempClientFact1;
+DROP TABLE TempClientFact1_V2;
 
-CREATE TABLE TempClientFact1 AS
+CREATE TABLE TempClientFact1_V2 AS
     SELECT DISTINCT
 	P.gender,
 	C.person_id AS client_id,
 	C.max_budget
 	FROM Client C, Person P
-	WHERE C.person_id = P.person_id
+	WHERE C.person_id = P.person_id;
 
-ALTER TABLE TempClientFact1 ADD
+ALTER TABLE TempClientFact1_V2 ADD
 (
-budget_range VARCHAR2(50),
+budget_range VARCHAR2(50)
 );
 
-UPDATE TempClientFact1
+UPDATE TempClientFact1_V2
 SET
 budget_range = 'Low'
 WHERE max_budget <= 1000;
 
-UPDATE TempClientFact1
+UPDATE TempClientFact1_V2
 SET
 budget_range = 'Medium'
 WHERE max_budget <= 100000
 AND max_budget > 1000;
 
-UPDATE TempClientFact1
+UPDATE TempClientFact1_V2
 SET
 budget_range = 'High'
 WHERE max_budget <= 10000000
@@ -765,14 +766,14 @@ AND max_budget > 100000;
 --------------------------------------------------------------------------------
 -- create the fact table
 --------------------------------------------------------------------------------
-DROP TABLE ClientFact;	
-CREATE TABLE ClientFact AS
+DROP TABLE ClientFact_V2;	
+CREATE TABLE ClientFact_V2 AS
     SELECT
 	gender,
 	client_id,
 	budget_range,
-	COUNT(client_id) AS total_num_of_clients,
-    FROM TempClientFact1
+	COUNT(client_id) AS total_num_of_clients
+    FROM TempClientFact1_V2
 	GROUP BY 	
 	gender,
 	client_id,
@@ -780,69 +781,91 @@ CREATE TABLE ClientFact AS
 --------------------------------------------------------------------------------
 -- create temp fact tables to extract from Visit table 
 --------------------------------------------------------------------------------
-DROP TABLE TempVisitFact1;
+DROP TABLE TempVisitFact1_V2;
 
-CREATE TABLE TempVisitFact1 AS
+CREATE TABLE TempVisitFact1_V2 AS
     SELECT DISTINCT
 	TO_CHAR(V.visit_date,'YYYYMMDD') AS time_id,
 	V.visit_date,
 	V.property_id,
 	V.property_id || V.client_person_id || V.agent_person_id  AS visit_id,
-	FROM Visit V;
+	C.max_budget
+	FROM Client C, Visit V
+	WHERE V.client_person_id = C.person_id;
 
-ALTER TABLE TempVisitFact1 ADD
+ALTER TABLE TempVisitFact1_V2 ADD
 (
-season_id VARCHAR2(50),
+budget_range VARCHAR2(50),
+season_id VARCHAR2(50)
 );
 
-UPDATE TempVisitFact1
+UPDATE TempVisitFact1_V2
 SET
 season_id = 'spring'
-WHERE TO_CHAR(visit_date,'MM') = '9'
-AND TO_CHAR(visit_date,'MM') = '10'
-AND TO_CHAR(visit_date,'MM') = '11';
+WHERE TO_CHAR(visit_date,'MM') = 9
+OR TO_CHAR(visit_date,'MM') = 10
+OR TO_CHAR(visit_date,'MM') = 11;
 
-UPDATE TempVisitFact1
+UPDATE TempVisitFact1_V2
 SET
 season_id = 'summer'
-WHERE TO_CHAR(visit_date,'MM') = '12'
-AND TO_CHAR(visit_date,'MM') = '1'
-AND TO_CHAR(visit_date,'MM') = '2';
+WHERE TO_CHAR(visit_date,'MM') = 12
+OR TO_CHAR(visit_date,'MM') = 1
+OR TO_CHAR(visit_date,'MM') = 2;
 
-UPDATE TempVisitFact1
+UPDATE TempVisitFact1_V2
 SET
 season_id = 'autumn'
-WHERE TO_CHAR(visit_date,'MM') = '3'
-AND TO_CHAR(visit_date,'MM') = '4'
-AND TO_CHAR(visit_date,'MM') = '5';
+WHERE TO_CHAR(visit_date,'MM') = 3
+OR TO_CHAR(visit_date,'MM') = 4
+OR TO_CHAR(visit_date,'MM') = 5;
 
-UPDATE TempVisitFact1
+UPDATE TempVisitFact1_V2
 SET
 season_id = 'winter'
-WHERE TO_CHAR(visit_date,'MM') = '6'
-AND TO_CHAR(visit_date,'MM') = '7'
-AND TO_CHAR(visit_date,'MM') = '8';
+WHERE TO_CHAR(visit_date,'MM') = 6
+OR TO_CHAR(visit_date,'MM') = 7
+OR TO_CHAR(visit_date,'MM') = 8;
+
+UPDATE TempVisitFact1_V2
+SET
+budget_range = 'Low'
+WHERE max_budget <= 1000;
+
+UPDATE TempVisitFact1_V2
+SET
+budget_range = 'Medium'
+WHERE max_budget <= 100000
+AND max_budget > 1000;
+
+UPDATE TempVisitFact1_V2
+SET
+budget_range = 'High'
+WHERE max_budget <= 10000000
+AND max_budget > 100000;
 --------------------------------------------------------------------------------
 -- create the fact table
 --------------------------------------------------------------------------------
-DROP TABLE VisitFact;	
-CREATE TABLE VisitFact AS
+DROP TABLE VisitFact_V2;	
+CREATE TABLE VisitFact_V2 AS
     SELECT
 	time_id,
 	season_id,
+	budget_range,
 	COUNT(visit_id) AS total_num_of_visit,
-	COUNT(property_id) AS total_num_of_property_has_visit,
-    FROM TempVisitFact1
+	COUNT(property_id) AS total_num_of_property_has_visit
+    FROM TempVisitFact1_V2
 	GROUP BY 	
 	time_id,
-	season_id;
+	season_id,
+	budget_range;
 		
 --------------------------------------------------------------------------------
 -- create temp fact tables to extract from Advertisement table 
 --------------------------------------------------------------------------------
-DROP TABLE TempAdFact1;
+DROP TABLE TempAdFact1_V2;
 
-CREATE TABLE TempAdFact1 AS
+CREATE TABLE TempAdFact1_V2 AS
     SELECT DISTINCT
 	TO_CHAR(P.property_date_added,'YYYYMMDD') AS time_id,
 	PA.property_id
@@ -852,13 +875,13 @@ CREATE TABLE TempAdFact1 AS
 --------------------------------------------------------------------------------
 -- create the fact table
 --------------------------------------------------------------------------------
-DROP TABLE AdFact;	
-CREATE TABLE AdFact AS
+DROP TABLE AdFact_V2;	
+CREATE TABLE AdFact_V2 AS
     SELECT
 	time_id,
 	property_id,
 	COUNT(property_id) AS total_num_of_property_has_ads
-    FROM TempAdFact1
+    FROM TempAdFact1_V2
 	GROUP BY 	
 	time_id,
 	property_id;		
@@ -866,52 +889,44 @@ CREATE TABLE AdFact AS
 --------------------------------------------------------------------------------
 -- create temp fact tables to extract from Agent table 
 --------------------------------------------------------------------------------
-DROP TABLE TempAgentFact1;
-CREATE TABLE TempAgentFact1 AS
+DROP TABLE TempAgentFact1_V2;
+CREATE TABLE TempAgentFact1_V2 AS
 	SELECT 
 	office_id,
 	COUNT(*) AS num_of_employees
 	FROM Agent_Office AO
 	GROUP BY office_id;
 	
-DROP TABLE TempAgentFact2
-CREATE TABLE TempAgentFact2 AS
+DROP TABLE TempAgentFact2_V2;
+CREATE TABLE TempAgentFact2_V2 AS
     SELECT DISTINCT
-	O.office_id
+	AO.office_id,
 	A.person_id AS agent_id,
 	P.gender,
 	A.salary,
 	F.num_of_employees
-	FROM TempAgentFact1 F, Agent_Office AO, Agent A, Person P
+	FROM TempAgentFact1_V2 F, Agent_Office AO, Agent A, Person P
 	WHERE F.office_id = AO.office_id
 	AND AO.person_id = A.person_id
 	AND A.person_id = P.person_id;
-	
-ALTER TABLE TempVisitFact2 ADD
+
+ALTER TABLE TempAgentFact2_V2 ADD
 (
-office_size VARCHAR2(50),
+office_size VARCHAR2(50)
 );
-INSERT INTO OfficeSizeDim 
-VALUES ('Small', 'Less than four employees');
 
-INSERT INTO OfficeSizeDim 
-VALUES ('Medium', 'Four to twelve employees');
-
-INSERT INTO OfficeSizeDim 
-VALUES ('Big', 'More than twelve employees');
-
-UPDATE TempVisitFact2
+UPDATE TempAgentFact2_V2
 SET
 office_size = 'Small'
 WHERE num_of_employees < 4;
 
-UPDATE TempVisitFact2
+UPDATE TempAgentFact2_V2
 SET
 office_size = 'Medium'
 WHERE num_of_employees >= 4
 AND num_of_employees <= 12;
 
-UPDATE TempVisitFact2
+UPDATE TempAgentFact2_V2
 SET
 office_size = 'Big'
 WHERE num_of_employees > 12 ;
@@ -919,15 +934,15 @@ WHERE num_of_employees > 12 ;
 --------------------------------------------------------------------------------
 -- create the fact table
 --------------------------------------------------------------------------------
-DROP TABLE VisitFact;	
-CREATE TABLE VisitFact AS
+DROP TABLE AgentFact_V2;	
+CREATE TABLE AgentFact_V2 AS
     SELECT
 	office_size,
 	gender,
 	agent_id,
 	SUM(salary) AS total_salary,
-	COUNT(agent_id) AS total_num_of_agents,
-    FROM TempVisitFact2
+	COUNT(agent_id) AS total_num_of_agents
+    FROM TempAgentFact2_V2
 	GROUP BY 	
 	office_size,
 	gender,
