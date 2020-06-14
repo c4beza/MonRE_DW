@@ -311,8 +311,8 @@ HAVING COUNT(*) > 1);
 SELECT COUNT(*) FROM MonRE.Address; 
 
 -- Solution:
-select count(*) from 
-(select max(address_id) address_id, street, suburb, postcode from MonRE.Address group by street, suburb, postcode);
+SELECT COUNT(*) FROM 
+(SELECT MAX(address_id) address_id, street, suburb, postcode FROM MonRE.Address GROUP BY street, suburb, postcode);
 
 -- Error 2: Dirty record in Agent table 
 --(There are 0 and negative values in MonRE.Agent)
